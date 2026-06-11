@@ -1,0 +1,75 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    background-color: #141414;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Three.js canvas styling */
+canvas {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+/* Loading Screen Overlay */
+.progress-bar-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #0b0b0c;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    transition: opacity 0.5s ease-out;
+}
+
+.loading-text {
+    color: #a2b9ff;
+    font-size: 1.1rem;
+    letter-spacing: 0.2rem;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+    font-weight: 500;
+    text-shadow: 0 0 10px rgba(162, 185, 255, 0.3);
+}
+
+/* Progress Bar Styling */
+progress {
+    width: 250px;
+    height: 4px;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+progress::-webkit-progress-bar {
+    background-color: #1f1f23;
+    border-radius: 2px;
+}
+
+progress::-webkit-progress-value {
+    background-color: #7000ff;
+    border-radius: 2px;
+    box-shadow: 0 0 12px #7000ff;
+}
+
+progress::-moz-progress-bar {
+    background-color: #7000ff;
+    border-radius: 2px;
+    box-shadow: 0 0 12px #7000ff;
+}
