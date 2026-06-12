@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/main.js",
   "scripts": {
-    "dev": "cd src && npx vite"
+    "dev": "cd src && npx vite --host"
   },
   "keywords": [],
   "author": "",
@@ -13,6 +13,7 @@
     "vite": "^8.0.8"
   },
   "dependencies": {
+    "stats-gl": "^4.1.0",
     "three": "^0.183.2"
   }
 }
