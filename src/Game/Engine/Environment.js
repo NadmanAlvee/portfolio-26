@@ -24,6 +24,14 @@ export default class Environment {
     this.plane.rotation.x = Math.PI / 2;
     this.scene.add(this.plane);
 
+    // debug green box
+    this.box = new THREE.Mesh(
+      new THREE.BoxGeometry(1, 1, 1),
+      new THREE.MeshPhongMaterial({ color: 0xff0000, wireframe: true }),
+    );
+    this.box.position.set(0, 1.2, 2);
+    this.scene.add(this.box);
+
     // this.island = new Island(this);
     // this.ocean = new Ocean(this);
 

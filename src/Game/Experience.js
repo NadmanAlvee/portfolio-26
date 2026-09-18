@@ -50,7 +50,6 @@ export default class Experience {
     this.astro = null; // from Player class
 
     this.player = new Player(this);
-    console.log(this.player.instance);
 
     this.controls = null; // orbit control placeholder
     this.camera = new Camera(this);

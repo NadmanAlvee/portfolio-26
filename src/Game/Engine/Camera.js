@@ -21,7 +21,7 @@ export default class Camera {
     );
 
     this.controls.maxPolarAngle = Math.PI / 2.1;
-    this.controls.enablePan = false;
+    // this.controls.enablePan = false;
     // this.controls.minDistance = 80;
     // this.controls.maxDistance = 200;
   }
@@ -32,14 +32,14 @@ export default class Camera {
   }
 
   _calculateIdealOffset() {
-    const idealOffset = new THREE.Vector3(2, 2, 3);
+    const idealOffset = new THREE.Vector3(-1.2, 2, -3.2);
     idealOffset.applyQuaternion(this.experience.player.instance.quaternion);
     idealOffset.add(this.experience.player.instance.position);
     return idealOffset;
   }
 
   _calculateIdealLookAt() {
-    const idealLookAt = new THREE.Vector3(0, 0, 0);
+    const idealLookAt = new THREE.Vector3(0, 1.2, 2);
     idealLookAt.applyQuaternion(this.experience.player.instance.quaternion);
     idealLookAt.add(this.experience.player.instance.position);
     return idealLookAt;
@@ -51,8 +51,20 @@ export default class Camera {
     const idealOffset = this._calculateIdealOffset();
     const idealLookAt = this._calculateIdealLookAt();
 
-    this.currentPosition.copy(idealOffset);
-    this.currentLookAt.copy(idealLookAt);
+    // prevents initial damping
+    // if (!this._initialized) {
+    //   this.currentPosition.copy(idealOffset);
+    //   this.currentLookAt.copy(idealLookAt);
+    //   this._initialized = true;
+    // }
+
+    const t = 1 - Math.pow(0.001, delta); // damping factor, framerate-independent
+
+    const positionDamping = 1 - Math.pow(0.05, delta);
+    const lookAtDamping = 1 - Math.pow(0.3, delta);
+
+    this.currentPosition.lerp(idealOffset, positionDamping);
+    this.currentLookAt.lerp(idealLookAt, lookAtDamping);
 
     this.instance.position.copy(this.currentPosition);
     this.instance.lookAt(this.currentLookAt);

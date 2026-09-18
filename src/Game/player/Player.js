@@ -40,6 +40,9 @@ export default class Player {
       // action.clampWhenFinished = false;
     });
 
+    // debug
+    console.log(this.animations);
+
     // 3. Instantiate Yuka Astro class
     this.astro = new Astro(this.mixer, this.animations);
     this.entityManager.add(this.astro);
@@ -54,14 +57,14 @@ export default class Player {
   #handleInput(delta) {
     const inputs = this.input.keys;
 
-    if (inputs.forward) {
-      this.astro.isWalking = !inputs.shift;
-      this.astro.isRunning = inputs.shift;
-      this.astro.isIdle = false;
+    this.astro.turnLeft = inputs.left;
+    this.astro.turnRight = inputs.right;
 
-      
-    }
-    if (!inputs.forward) {
+    if (inputs.forward) {
+      this.astro.isRunning = inputs.shift;
+      this.astro.isWalking = !inputs.shift;
+      this.astro.isIdle = false;
+    } else {
       this.astro.isIdle = true;
       this.astro.isWalking = false;
       this.astro.isRunning = false;
