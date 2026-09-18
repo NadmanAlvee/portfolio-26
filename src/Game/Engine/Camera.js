@@ -32,7 +32,7 @@ export default class Camera {
   }
 
   _calculateIdealOffset() {
-    const idealOffset = new THREE.Vector3(2, 2, 2);
+    const idealOffset = new THREE.Vector3(2, 2, 3);
     idealOffset.applyQuaternion(this.experience.player.instance.quaternion);
     idealOffset.add(this.experience.player.instance.position);
     return idealOffset;
