@@ -8,9 +8,14 @@ export default class Resources {
     this.onReady = callback;
     this.items = {};
 
+    // LoadingManager( onLoad : function, onProgress : function, onError : function )
     this.loadingManager = new THREE.LoadingManager(
       () => this.onReady(),
       (url, loaded, total) => this.#updateProgress(url, loaded, total),
+      (url) => {
+        console.error(` Failed to load asset: ${url}`);
+        this.#handleLoadingError(url);
+      },
     );
 
     this.#initLoaders();
@@ -42,6 +47,20 @@ export default class Resources {
           this.items[asset.name] = texture;
         });
       }
+    }
+  }
+
+  #handleLoadingError(url) {
+    const progressBarContainer = document.querySelector(
+      ".progress-bar-container",
+    );
+    if (progressBarContainer) {
+      progressBarContainer.innerHTML = `
+      <div style="color: #ff4d4d; font-family: sans-serif; text-align: center;">
+        <p>Failed to load game assets.</p>
+        <small>Missing file: ${url}</small>
+      </div>
+    `;
     }
   }
 }

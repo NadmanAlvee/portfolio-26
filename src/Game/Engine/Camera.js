@@ -11,12 +11,17 @@ export default class Camera {
       0.1,
       1000,
     );
-    this.instance.position.set(0, 100, 150);
+    this.instance.position.set(0, 5, -3);
 
     this.controls = new OrbitControls(
       this.instance,
       this.experience.renderer.domElement,
     );
+
+    this.controls.maxPolarAngle = Math.PI / 2.1;
+    // this.controls.enablePan = false;
+    // this.controls.minDistance = 80;
+    // this.controls.maxDistance = 200;
   }
 
   resize() {
