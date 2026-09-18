@@ -1,104 +1,80 @@
 import * as THREE from "three";
-import { EntityManager } from "yuka";
 import { Astro } from "./Astro.js";
 import InputController from "./InputController.js";
 
 export default class Player {
   constructor(experience) {
     this.experience = experience;
-    this.scene = this.experience.scene;
+    this.worldScene = this.experience.scene;
     this.resources = this.experience.resources;
 
-    this.entityManager = new EntityManager();
+    this.entityManager = this.experience.entityManager;
+
     this.input = new InputController();
-    this.resource = this.resources.items.player;
+
+    this.playerGltf = this.resources.items.player;
+
+    this.instance = this.playerGltf.scene;
+    this.instance.animations = this.playerGltf.animations;
 
     this.#initCharacter();
   }
 
   #initCharacter() {
-    this.mesh = this.resource.scene;
-    this.mesh.scale.set(1, 1, 1);
-    this.mesh.position.set(0, 0, 0); // Island spawn point
-    this.scene.add(this.mesh);
+    // 1. Add Player to World
+    this.instance.scale.set(1, 1, 1);
+    this.instance.position.set(0, 0, 0); // Island spawn point
+    this.worldScene.add(this.instance);
 
-    // Build Three.js Animation Mixer
-    this.mixer = new THREE.AnimationMixer(this.mesh);
+    // 2. Map Animation Actions with their name in this.animations eg. this.animations[0] = {"WALK", WalkAction}
+    this.mixer = new THREE.AnimationMixer(this.instance);
     this.animations = new Map();
 
-    // Store GLTF clips in a searchable Map for Astro
-    this.resource.animations.forEach((clip) => {
+    this.instance.animations.forEach((clip) => {
       const action = this.mixer.clipAction(clip);
+      action.play();
+      action.enabled = false;
+      this.animations.set(clip.name.toUpperCase(), action);
 
-      // 🌟 FIX 1: Explicitly force clip actions to loop infinitely
-      action.setLoop(THREE.LoopRepeat, Infinity);
-      action.clampWhenFinished = false;
-
-      this.animations.set(clip.name.toLowerCase(), action);
+      // action.setLoop(THREE.LoopRepeat, Infinity);
+      // action.clampWhenFinished = false;
     });
 
-    // Instantiate Yuka Astro class
+    // 3. Instantiate Yuka Astro class
     this.astro = new Astro(this.mixer, this.animations);
+    this.entityManager.add(this.astro);
 
     // Bridge Yuka position/rotation to the Three.js mesh
-    this.astro.setRenderComponent(this.mesh, (entity, renderComponent) => {
+    this.astro.setRenderComponent(this.instance, (entity, renderComponent) => {
       renderComponent.position.copy(entity.position);
       renderComponent.quaternion.copy(entity.rotation);
     });
+  }
 
-    this.entityManager.add(this.astro);
+  #handleInput(delta) {
+    const inputs = this.input.keys;
+
+    if (inputs.forward) {
+      this.astro.isWalking = !inputs.shift;
+      this.astro.isRunning = inputs.shift;
+      this.astro.isIdle = false;
+
+      
+    }
+    if (!inputs.forward) {
+      this.astro.isIdle = true;
+      this.astro.isWalking = false;
+      this.astro.isRunning = false;
+    }
   }
 
   update(delta) {
     if (!this.astro) return;
 
-    // 1. Handle movement vector and state transition requests
-    this.#handleInput(delta);
-
-    // 🌟 FIX 2: Only call Yuka's EntityManager update!
-    // This automatically calls astro.update(delta) once under the hood.
-    this.entityManager.update(delta);
-  }
-
-  #handleInput(delta) {
-    const keys = this.input.keys;
-
-    // Evaluate 3D directional vector
-    const moveDir = new THREE.Vector3(0, 0, 0);
-    if (keys.forward) moveDir.z -= 1;
-    if (keys.backward) moveDir.z += 1;
-    if (keys.left) moveDir.x -= 1;
-    if (keys.right) moveDir.x += 1;
-
-    const isMoving = moveDir.lengthSq() > 0;
-
-    if (isMoving) {
-      moveDir.normalize();
-
-      // Determine movement speed based on shift key
-      const speed = keys.shift ? 6.0 : 3.0;
-
-      // Update Yuka entity position in 3D space
-      this.astro.position.x += moveDir.x * speed * delta;
-      this.astro.position.z += moveDir.z * speed * delta;
-
-      // Smoothly rotate character toward movement direction
-      const targetAngle = Math.atan2(moveDir.x, moveDir.z);
-      const targetRotation = new THREE.Quaternion().setFromAxisAngle(
-        new THREE.Vector3(0, 1, 0),
-        targetAngle,
-      );
-      this.mesh.quaternion.slerp(targetRotation, 10 * delta);
-      this.astro.rotation.copy(this.mesh.quaternion);
-
-      // Request state change
-      if (keys.shift) {
-        this.astro.stateMachine.changeTo("RUN");
-      } else {
-        this.astro.stateMachine.changeTo("WALK");
-      }
-    } else {
-      this.astro.stateMachine.changeTo("IDLE");
+    if (this.mixer) {
+      this.mixer.update(delta);
     }
+
+    this.#handleInput(delta);
   }
 }

@@ -1,8 +1,8 @@
 import { State } from "yuka";
 
-const IDLE = "idle";
-const WALK = "walk";
-const RUN = "run";
+const IDLE = "IDLE";
+const WALK = "WALK";
+const RUN = "RUN";
 
 class IdleState extends State {
   enter(astro) {
@@ -14,8 +14,14 @@ class IdleState extends State {
   }
 
   execute(astro) {
-    // Recover energy while standing still
-    astro.energy = Math.min(100, astro.energy + astro.deltaTime * 10);
+    if (!astro.isIdle && astro.isWalking && !astro.isRunning) {
+      astro.stateMachine.changeTo(WALK);
+      return;
+    }
+    if (!astro.isIdle && !astro.isWalking && astro.isRunning) {
+      astro.stateMachine.changeTo(RUN);
+      return;
+    }
   }
 
   exit(astro) {
@@ -34,8 +40,14 @@ class WalkState extends State {
   }
 
   execute(astro) {
-    // Drain energy slowly
-    astro.energy = Math.max(0, astro.energy - astro.deltaTime * 5);
+    if (astro.isIdle && !astro.isWalking && !astro.isRunning) {
+      astro.stateMachine.changeTo(IDLE);
+      return;
+    }
+    if (!astro.isIdle && !astro.isWalking && astro.isRunning) {
+      astro.stateMachine.changeTo(RUN);
+      return;
+    }
   }
 
   exit(astro) {
@@ -54,8 +66,14 @@ class RunState extends State {
   }
 
   execute(astro) {
-    // Drain energy faster
-    astro.energy = Math.max(0, astro.energy - astro.deltaTime * 15);
+    if (astro.isIdle && !astro.isWalking && !astro.isRunning) {
+      astro.stateMachine.changeTo(IDLE);
+      return;
+    }
+    if (!astro.isIdle && astro.isWalking && !astro.isRunning) {
+      astro.stateMachine.changeTo(WALK);
+      return;
+    }
   }
 
   exit(astro) {

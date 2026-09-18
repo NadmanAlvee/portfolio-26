@@ -15,9 +15,6 @@ export default class Experience {
     this.scene = new THREE.Scene();
     this.renderer = new Renderer(this);
 
-    this.controls = null; // orbit control placeholder
-    this.camera = new Camera(this);
-
     // perf monitor
     this.#initPerformanceMonitor();
 
@@ -30,7 +27,8 @@ export default class Experience {
     this.resources = new Resources(() => this.#startExperience());
 
     // Define all assets needed globally
-    // resources.load expects an array of objects {name, type = ["glb", "gltf", "hdr"], path}
+    // 1. resources.load expects an array of objects {name, type = ["glb", "gltf", "hdr"], path}
+    // 2. saves all models as names in this.resources.items = {}; eg: this.resources.player = player model
     this.resources.load([
       {
         name: "islandTerrain",
@@ -40,12 +38,6 @@ export default class Experience {
       { name: "oceanMesh", type: "glb", path: "/models/props/oceanPlane.glb" },
       { name: "player", type: "gltf", path: "/models/player/Adventurer.gltf" },
     ]);
-
-    // handle resize
-    window.addEventListener("resize", () => this.#resize());
-
-    // start animation
-    this.#aniamtionLoop();
   }
 
   #startExperience() {
@@ -53,11 +45,25 @@ export default class Experience {
     this.environment = new Environment(this);
 
     // setup playable model
+    this.mixer = null; // from Player class
+    this.animations = null; // from Player class
+    this.astro = null; // from Player class
+
     this.player = new Player(this);
+    console.log(this.player.instance);
+
+    this.controls = null; // orbit control placeholder
+    this.camera = new Camera(this);
 
     // Remove loading overlay
     document.querySelector(".progress-bar-container").style.display = "none";
     console.log("Dark World Spawned.");
+
+    // handle resize
+    window.addEventListener("resize", () => this.#resize());
+
+    // start animation
+    this.#aniamtionLoop();
   }
 
   // performance monitor
@@ -84,9 +90,10 @@ export default class Experience {
 
   #aniamtionLoop() {
     this.renderer.instance.setAnimationLoop((time) => {
-      this.stats.begin();
-      this.camera.update();
       const delta = this.yukaTime.update().getDelta();
+
+      this.stats.begin();
+      this.camera.update(delta);
 
       if (this.ocean) {
         // animate water shaders
@@ -99,6 +106,8 @@ export default class Experience {
       }
 
       if (this.player) this.player.update(delta);
+
+      this.entityManager.update(delta);
 
       this.renderer.update();
 

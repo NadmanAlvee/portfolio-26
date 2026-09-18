@@ -2,9 +2,9 @@ export default class InputController {
   constructor() {
     this.keys = {
       forward: false,
-      backward: false,
       left: false,
       right: false,
+
       shift: false,
       space: false,
     };
@@ -13,39 +13,29 @@ export default class InputController {
   }
 
   #addEventListeners() {
-    window.addEventListener("keydown", (event) =>
-      this.#handleKey(event.code, true),
-    );
+    window.addEventListener("keydown", (event) => {
+      this.#handleKey(event.code, true);
+    });
     window.addEventListener("keyup", (event) =>
       this.#handleKey(event.code, false),
     );
   }
 
   #handleKey(code, isPressed) {
-    switch (code) {
-      case "KeyW":
-      case "ArrowUp":
-        this.keys.forward = isPressed;
-        break;
-      case "KeyS":
-      case "ArrowDown":
-        this.keys.backward = isPressed;
-        break;
-      case "KeyA":
-      case "ArrowLeft":
-        this.keys.left = isPressed;
-        break;
-      case "KeyD":
-      case "ArrowRight":
-        this.keys.right = isPressed;
-        break;
-      case "ShiftLeft":
-      case "ShiftRight":
-        this.keys.shift = isPressed;
-        break;
-      case "Space":
-        this.keys.space = isPressed;
-        break;
+    if (code === "KeyW" || code === "ArrowUp") {
+      this.keys.forward = isPressed;
+    }
+    if (code === "KeyA" || code === "ArrowLeft") {
+      this.keys.left = isPressed;
+    }
+    if (code === "KeyD" || code === "ArrowRight") {
+      this.keys.right = isPressed;
+    }
+    if (code === "ShiftLeft" || code === "ShiftRight") {
+      this.keys.shift = isPressed;
+    }
+    if (code === "Space") {
+      this.keys.space = isPressed;
     }
   }
 }
